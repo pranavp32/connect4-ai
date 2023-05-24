@@ -59,7 +59,7 @@ impl ArrayBoard {
     pub fn play_move(&mut self, column: usize) { 
         let coin = if self.red_turn {Cell::Red} else {Cell::Yellow}
 
-        //Choose correct row first and then add column offset
+        //Find height and multiply by width to find index of row and then add column offset
         self.board[WIDTH*self.heights[column] + column] = coin;
         self.num_moves += 1;
         self.heights[column] += 1;
@@ -79,9 +79,9 @@ impl ArrayBoard {
 
         //Check vertical direction 
         if self.heights[column] >= 3 
-        && self.board[(WIDTH*self.heights[column] - 1) + column] == coin
-        && self.board[(WIDTH*self.heights[column] - 2) + column] == coin
-        && self.board[(WIDTH*self.heights[column] - 3) + column] == coin
+        && self.board[WIDTH*(self.heights[column] - 1) + column] == coin
+        && self.board[WIDTH*(self.heights[column] - 2) + column] == coin
+        && self.board[WIDTH*(self.heights[column] - 3) + column] == coin
             return true;
    
         //Check horizontal direction
