@@ -121,7 +121,7 @@ impl ArrayBoard {
             left_diag_count += 1;
         }
         
-        //Check if left diagonal has 4 or more coins in a row
+        //Check if left diagonal has 4 or more contiguous coins 
         if left_diag_count >= 4 {
             return true;
         }
@@ -129,17 +129,20 @@ impl ArrayBoard {
         let right_diag_count = 1;
         direction = 1;
         
+        //Check upper right direction
         while column + direction < WIDTH && column + self.heights[column] < HEIGHT && self.board[WIDTH*(self.heights[column] + direction) + column + direction] == coin {
             direction += 1;
             right_diag_count += 1;
         }
         
+        //Check bottom left direction
         direction = 1;
         while column - direction >= 0 && self.heights[column] - direction >= 0 && self.board[WIDTH*(self.heights[column] - direction) + column - direction] == coin {
             direction += 1;
             right_diag_count += 1;
         }
         
+        //Check if right diagonal has 4 or more contiguous coins 
         if right_diag_count >= 4 {
             return true;
         }
