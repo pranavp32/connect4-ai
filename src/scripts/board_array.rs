@@ -85,5 +85,66 @@ impl ArrayBoard {
             return true;
    
         //Check horizontal direction
+        let mut horiz_count = 1;
+        let mut x = 1;
+        //Check rightward direction
+        while column + x < WIDTH && self.board[WIDTH*self.heights[column] + column + x] == coin {
+            x += 1;
+            horiz_count += 1;
+        }
+        
+        //Check leftward direction
+        x = 1;
+        while column - x >= 0 && self.board[WIDTH*self.heights[column] + column - x] == coin {
+            x += 1;
+            horiz_count += 1;
+        }
+        
+        if horiz_count >= 4 {
+            return true;
+        }
+        
+        //Check diagonals
+        let left_diag_count = 1;
+        let mut direction = 1;
+        
+        //Check upper left direction
+        while column - direction >= 0 && column + self.heights[column] < HEIGHT && self.board[WIDTH*(self.heights[column] + direction) + column - direction] == coin {
+            direction += 1;
+            left_diag_count += 1;
+        }
+        
+        //Check bottom right direction
+        direction = 1;
+        while column + direction < WIDTH && self.heights[column] - direction >= 0 && self.board[WIDTH*(self.heights[column] - direction) + column + direction] == coin {
+            direction += 1;
+            left_diag_count += 1;
+        }
+        
+        //Check if left diagonal has 4 or more coins in a row
+        if left_diag_count >= 4 {
+            return true;
+        }
+        
+        let right_diag_count = 1;
+        direction = 1;
+        
+        while column + direction < WIDTH && column + self.heights[column] < HEIGHT && self.board[WIDTH*(self.heights[column] + direction) + column + direction] == coin {
+            direction += 1;
+            right_diag_count += 1;
+        }
+        
+        direction = 1;
+        while column - direction >= 0 && self.heights[column] - direction >= 0 && self.board[WIDTH*(self.heights[column] - direction) + column - direction] == coin {
+            direction += 1;
+            right_diag_count += 1;
+        }
+        
+        if right_diag_count >= 4 {
+            return true;
+        }
+        
+        //Not winning move
+        return false;
     }
 } 
