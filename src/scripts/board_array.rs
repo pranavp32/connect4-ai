@@ -1,5 +1,5 @@
 const HEIGHT: usize = 6,; 
-const WEIGHT: usize = 7;
+const WIDTH: usize = 7;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Cell {
