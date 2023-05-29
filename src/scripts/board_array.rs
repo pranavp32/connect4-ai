@@ -43,14 +43,15 @@ impl ArrayBoard {
             return Err("Column {} Full. Choose another move!", column);
         }
 
-        if self.is_winning_move
+        if self.is_winning_move {
             self.state = if self.red_turn {GameState::Win} else {GameState::Loss}
-        else if self.is_draw
+        } else if self.is_draw {
             self.state = GameState::Tie
-        else
+        } else
             self.state = GameState::Default
-        
-        self.play_move(column);
+            self.play_move(column);
+        }
+    
         self.moves.push_str(&column.to_string());
 
         return Ok(self.state);
