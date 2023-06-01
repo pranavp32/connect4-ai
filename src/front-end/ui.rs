@@ -56,7 +56,13 @@ impl Component for Connect4 {
     fn view(&self) -> Html {
         html! {
             <div class="connect4">
-                { for (0..HEIGHT).map(|row| self.render_row(row)) }
+                <div class="board">
+                    { for (0..HEIGHT).map(|row| self.render_row(row)) }
+                </div>
+                <div class="message">
+                    { self.render_turn_message() }
+                    { self.render_game_state_message() }
+                </div>
                 <div class="buttons">
                     { for (0..WIDTH).map(|column| self.render_button(column)) }
                 </div>
@@ -66,16 +72,9 @@ impl Component for Connect4 {
 }
 
 impl Connect4 {
-    fn render_row(&self, row: usize) -> Html {
-        html! {
-            <div class="row">
-                { for (0..WIDTH).map(|column| self.render_cell(row, column)) }
-            </div>
-        }
-    }
 
     fn render_cell(&self, row: usize, column: usize) -> Html {
-        let index = WIDTH * (HEIGHT - 1 - row) + column;
+        let index = row*WIDTH + column + 1;
         let cell = self.board.board[index];
 
         let class = match cell {
@@ -89,11 +88,48 @@ impl Connect4 {
         }
     }
 
+    fn render_row(&self, row: usize) -> Html {
+        html! {
+            <div class="row">
+                { for (0..WIDTH).map(|column| self.render_cell(row, column)) }
+            </div>
+        }
+    }
+
     fn render_button(&self, column: usize) -> Html {
         html! {
             <button onclick=self.link.callback(move |_| Msg::ColumnClicked(column))>
-                {"Drop"}
+                {"Move valid"}
             </button>
         }
     }
+
+    fn render_turn_message(&self) -> Html {
+        let current_player = match self.board.current_player {
+            Cell::Red => "Red",
+            Cell::Yellow => "Yellow",
+        };
+
+        html! {
+            <div class="turn-message">
+                { format!("It's your turn: {}", current_player) }
+            </div>
+        }
+    }
+
+    fn render_game_state_message(&self) -> Html {
+        let state_message = match self.board.get_game_state() {
+            GameState::Win => "You won :D",
+            GameState::Loss => "You lost :(",
+            GameState::Tie => "Tie :|",
+            GameState::Default => "Think carefully...",
+        };
+
+        html! {
+            <div class="game-state-message">
+                { state_message }
+            </div>
+        }
+    }
+
 }
