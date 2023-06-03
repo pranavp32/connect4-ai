@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 mod board_array;
 
-use board_array::{ArrayBoard, Cell};
+use board_array::{ArrayBoard, Cell, GameState};
 
 const HEIGHT: usize = 6;
 const WIDTH: usize = 7;
@@ -50,7 +50,7 @@ impl Component for Connect4 {
                 }
             }
         }
-        ShouldRender::Yes
+        true
     }
 
     fn view(&self) -> Html {
@@ -74,7 +74,7 @@ impl Component for Connect4 {
 impl Connect4 {
 
     fn render_cell(&self, row: usize, column: usize) -> Html {
-        let index = row*WIDTH + column + 1;
+        let index = row*WIDTH + column;
         let cell = self.board.board[index];
 
         let class = match cell {
