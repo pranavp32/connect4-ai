@@ -60,18 +60,21 @@ impl Component for Connect4 {
 
     fn view(&self) -> Html {
         html! {
-            <div class="connect4">
-                <div class="board">
-                    { for (0..HEIGHT).map(|row| self.render_row(row)) }
+            <>
+                <link rel="stylesheet" type="text/css" href="ui.css"/>
+                <div class="connect4">
+                    <div class="board">
+                        { for (0..HEIGHT).map(|row| self.render_row(row)) }
+                    </div>
+                    <div class="message">
+                        { self.render_turn_message() }
+                        { self.render_game_state_message() }
+                    </div>
+                    <div class="buttons">
+                        { for (0..WIDTH).map(|column| self.render_button(column)) }
+                    </div>
                 </div>
-                <div class="message">
-                    { self.render_turn_message() }
-                    { self.render_game_state_message() }
-                </div>
-                <div class="buttons">
-                    { for (0..WIDTH).map(|column| self.render_button(column)) }
-                </div>
-            </div>
+            </>
         }
     }
 }
