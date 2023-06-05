@@ -53,6 +53,11 @@ impl Component for Connect4 {
         true
     }
 
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+        self.board = ArrayBoard::new();
+        true
+    }
+
     fn view(&self) -> Html {
         html! {
             <div class="connect4">
@@ -99,15 +104,15 @@ impl Connect4 {
     fn render_button(&self, column: usize) -> Html {
         html! {
             <button onclick=self.link.callback(move |_| Msg::ColumnClicked(column))>
-                {"Move valid"}
+                {"  ↓  "}
             </button>
         }
     }
 
     fn render_turn_message(&self) -> Html {
-        let current_player = match self.board.current_player {
-            Cell::Red => "Red",
-            Cell::Yellow => "Yellow",
+        let current_player = match self.board.red_turn {
+            true => "Red",
+            false => "Yellow",
         };
 
         html! {
@@ -118,7 +123,7 @@ impl Connect4 {
     }
 
     fn render_game_state_message(&self) -> Html {
-        let state_message = match self.board.get_game_state() {
+        let state_message = match self.board.state {
             GameState::Win => "You won :D",
             GameState::Loss => "You lost :(",
             GameState::Tie => "Tie :|",

@@ -17,11 +17,11 @@ pub enum GameState {
 }
 
 pub struct ArrayBoard {
-    board: [Cell; WIDTH * HEIGHT], //board where coins will be stored in row-major order from bottom to top
+    pub board: [Cell; WIDTH * HEIGHT], //board where coins will be stored in row-major order from bottom to top
     num_moves: usize, //number of played moves
     pub red_turn: bool, //used to signify whose turn it is
     heights: [usize; WIDTH], //height of each column (number of coins in each col)
-    pub moves: String::new(), //numeric string to signify sequence of moves
+    pub moves: String, //numeric string to signify sequence of moves
     pub state: GameState, //current game state
 }
 
@@ -38,14 +38,14 @@ impl ArrayBoard {
         }
     }
 
-    pub fn play_turn(&mut self, column: usize) -> Result<GameState> {
+    pub fn play_turn(&mut self, column: usize) -> Result<GameState, String> {
         if !self.is_move_valid(column) {
-            return Err("Column {} Full. Choose another move!", column);
+            return Err("Column is full. Choose another move!".to_string());
         }
 
-        if self.is_winning_move {
+        if self.is_winning_move(column) {
             self.state = if self.red_turn {GameState::Win} else {GameState::Loss}
-        } else if self.is_draw {
+        } else if self.is_draw(column) {
             self.state = GameState::Tie;
         } else {
             self.state = GameState::Default;
@@ -58,7 +58,11 @@ impl ArrayBoard {
     }
 
     pub fn play_move(&mut self, column: usize) { 
-        let coin = if self.red_turn {Cell::Red;} else {Cell::Yellow;};
+        let coin = if self.red_turn {
+            Cell::Red
+        } else {
+            Cell::Yellow
+        };
 
         //Find height and multiply by width to find index of row and then add column offset
         self.board[WIDTH*self.heights[column] + column] = coin;
@@ -76,7 +80,11 @@ impl ArrayBoard {
     }
 
     pub fn is_winning_move(&self, column: usize) -> bool {
-        let coin = if self.red_turn {Cell::Red;} else {Cell::Yellow;};
+        let coin = if self.red_turn {
+            Cell::Red
+        } else {
+            Cell::Yellow
+        };
 
         //Check vertical direction 
         if self.heights[column] >= 3 
@@ -106,7 +114,7 @@ impl ArrayBoard {
         }
         
         //Check diagonals
-        let left_diag_count = 1;
+        let mut left_diag_count = 1;
         let mut direction = 1;
         
         //Check upper left direction
@@ -127,7 +135,7 @@ impl ArrayBoard {
             return true;
         }
         
-        let right_diag_count = 1;
+        let mut right_diag_count = 1;
         direction = 1;
         
         //Check upper right direction
