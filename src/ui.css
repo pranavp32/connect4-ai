@@ -33,7 +33,7 @@
   }
   
   .empty {
-    background-color: white;
+    background-color: rgb(247, 244, 244);
     width: 30px;
     height: 30px;
     border-radius: 50%;
