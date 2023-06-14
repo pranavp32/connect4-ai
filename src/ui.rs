@@ -59,9 +59,9 @@
         }
 
         fn view(&self) -> Html {
+            let css = include_str!("ui.css");
             html! {
                 <>
-                    <link rel="stylesheet" type="text/css" href="ui.css"/>
                     <div class="connect4">
                         <div class="board">
                             { for (0..HEIGHT).map(|row| self.render_row(row)) }
@@ -74,6 +74,9 @@
                             { for (0..WIDTH).map(|column| self.render_button(column)) }
                         </div>
                     </div>
+                    <style>
+                        {css}
+                    </style>
                 </>
             }
         }
@@ -126,7 +129,7 @@
         }
 
         fn render_game_state_message(&self) -> Html {
-            let state_message = match self.board.state {
+            let state_message = match self.board.state {    
                 GameState::Win => "You won :D",
                 GameState::Loss => "You lost :(",
                 GameState::Tie => "Tie :|",
