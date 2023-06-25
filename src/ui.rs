@@ -30,6 +30,10 @@
         fn update(&mut self, msg: Self::Message) -> ShouldRender {
             match msg {
                 Msg::ColumnClicked(column) => {
+                    /*
+                    how do we know which column is clicked and how do we know 
+                    which index should be modified?
+                    */
                     if let Ok(state) = self.board.play_turn(column) {
                         match state {
                             GameState::Win => {
