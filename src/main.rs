@@ -1,4 +1,5 @@
 mod ui;
+mod scripts;
 
 use yew::prelude::*;
 use ui::Connect4;
