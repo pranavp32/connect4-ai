@@ -1,10 +1,6 @@
 const HEIGHT: usize = 6; 
 const WIDTH: usize = 7;
 
-fn main() {
-    println!("Good");
-}
-
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Cell {
     Red,
@@ -48,6 +44,7 @@ impl ArrayBoard {
         }
 
         if self.is_winning_move(column) {
+            self.play_move(column);
             self.state = if self.red_turn {GameState::Win} else {GameState::Loss}
         } else if self.is_draw() {
             self.state = GameState::Tie;

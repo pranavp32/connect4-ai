@@ -1,0 +1,71 @@
+.connect4 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  .board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .row {
+    display: flex;
+  }
+  
+  .red {
+    background-color: red;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 2px;
+  }
+  
+  .yellow {
+    background-color: yellow;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 2px;
+  }
+  
+  .empty {
+    background-color: rgb(247, 244, 244);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 2px;
+  }
+  
+  .message {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  
+  .turn-message {
+    font-weight: bold;
+  }
+  
+  .game-state-message {
+    font-style: normal;
+  }
+  
+  .buttons {
+    display: flex;
+  }
+  
+  button {
+    background-color: white;
+    border: none;
+    padding: 5px;
+    margin: 2px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: lightgray;
+  }
+  

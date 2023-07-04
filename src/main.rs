@@ -1,8 +1,8 @@
-mod ui;
+use yew::prelude::*;
+mod frontend;
 mod scripts;
 
-use yew::prelude::*;
-use ui::Connect4;
+use frontend::ui::{Connect4};
 
 fn main() {
     yew::start_app::<Connect4>();
