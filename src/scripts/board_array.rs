@@ -17,7 +17,7 @@ pub enum GameState {
 }
 
 pub struct ArrayBoard {
-    pub board: [Cell; WIDTH * HEIGHT], //board where coins will be stored in row-major order from bottom to top
+    pub board: [Cell; WIDTH * HEIGHT + 1], //board where coins will be stored in row-major order from bottom to top
     num_moves: usize, //number of played moves
     pub red_turn: bool, //used to signify whose turn it is
     heights: [usize; WIDTH], //height of each column (number of coins in each col)
@@ -29,7 +29,7 @@ pub struct ArrayBoard {
 impl ArrayBoard {
     pub fn new() -> Self {
         Self {
-            board: [Cell::Empty; WIDTH * HEIGHT], 
+            board: [Cell::Empty; WIDTH * HEIGHT + 1], 
             num_moves: 0,
             red_turn: true,
             heights: [0; WIDTH],
@@ -98,14 +98,14 @@ impl ArrayBoard {
         let mut horiz_count = 1;
         let mut x = 1;
         //Check rightward direction
-        while column + x < WIDTH && self.board[WIDTH*(self.heights[column] + 1) + column + x] == coin {
+        while column + x < WIDTH && self.board[WIDTH*(self.heights[column]) + column + x] == coin {
             x += 1;
             horiz_count += 1;
         }
         
         //Check leftward direction
         x = 1;
-        while column >= x && self.board[WIDTH*(self.heights[column] + 1) + column - x] == coin {
+        while column >= x && self.board[WIDTH*(self.heights[column]) + column - x] == coin {
             x += 1;
             horiz_count += 1;
         }
@@ -147,7 +147,6 @@ impl ArrayBoard {
             direction += 1;
             right_diag_count += 1;
         }
-        
         //Check bottom left direction
         direction = 1;
         while column >= direction && self.heights[column] + 1 >= direction 
