@@ -7,10 +7,12 @@ const WIDTH: usize = 7;
 pub struct Connect4 {
     link: ComponentLink<Self>,
     array_board: ArrayBoard,
+    game_over: bool,
 }
 
 pub enum Msg {
     ColumnClicked(usize),
+    NewGameClicked,
 }
 
 impl Component for Connect4 {
@@ -21,30 +23,23 @@ impl Component for Connect4 {
         Connect4 {
             link,
             array_board: ArrayBoard::new(),
+            game_over: false,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ColumnClicked(column) => {
-                if let Ok(state) = self.array_board.play_turn(column) {
-                    match state {
-                        GameState::Win => {
-                            println!("You won :D");
-                        }
-                        GameState::Loss => {
-                            println!("You lost :(");
-                        }
-                        GameState::Tie => {
-                            println!("Tie :|");
-                        }
-                        GameState::Default => {
-                            println!("Think carefully...");
-                        }
+                if !self.game_over {
+                    if let Ok(state) = self.array_board.play_turn(column) {
+                        self.handle_game_state(state);
+                    } else {
+                        println!("Column full, choose another column");
                     }
-                } else {
-                    println!("Column full, choose another column");
                 }
+            }
+            Msg::NewGameClicked => {
+                self.start_new_game();
             }
         }
 
@@ -58,19 +53,24 @@ impl Component for Connect4 {
 
     fn view(&self) -> Html {
         let css = include_str!("ui.css");
+        let game_result = self.render_game_state_message();
+        let new_game = self.render_new_game();
+
         html! {
             <>
                 <div class="connect4">
                     <div class="board">
                         { for (0..HEIGHT).map(|row| self.render_row(row)) }
                     </div>
-                    <div class="message">
-                        { self.render_turn_message() }
-                        { self.render_game_state_message() }
-                    </div>
                     <div class="buttons">
                         { for (0..WIDTH).map(|column| self.render_button(column)) }
                     </div>
+                    <div class="message">
+                        { self.render_turn_message() }
+                        { game_result }
+                    </div>
+                    
+                    { new_game }
                 </div>
                 <style>
                     {css}
@@ -107,7 +107,7 @@ impl Connect4 {
     fn render_button(&self, column: usize) -> Html {
         html! {
             <button onclick=self.link.callback(move |_| Msg::ColumnClicked(column))>
-                {"  ↓  "}
+                {"|⇩⇩|"}
             </button>
         }
     }
@@ -138,5 +138,31 @@ impl Connect4 {
                 { state_message }
             </div>
         }
+    }
+
+    fn render_new_game(&self) -> Html {
+        if self.game_over {
+            html! {
+                <button onclick=self.link.callback(|_| Msg::NewGameClicked)>
+                    {"New Game"}
+                </button>
+            }
+        } else {
+            html! {}
+        }
+    }
+
+    fn handle_game_state(&mut self, state: GameState) {
+        match state {
+            GameState::Win | GameState::Loss | GameState::Tie => {
+                self.game_over = true;
+            }
+            GameState::Default => {}
+        }
+    }
+
+    fn start_new_game(&mut self) {
+        self.array_board = ArrayBoard::new();
+        self.game_over = false;
     }
 }
