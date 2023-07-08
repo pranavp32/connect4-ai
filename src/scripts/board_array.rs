@@ -45,7 +45,7 @@ impl ArrayBoard {
 
         if self.is_winning_move(column) {
             self.play_move(column);
-            self.state = if self.red_turn {GameState::Win} else {GameState::Loss}
+            self.state = if !self.red_turn {GameState::Win} else {GameState::Loss}
         } else if self.is_draw() {
             self.state = GameState::Tie;
         } else {
@@ -98,14 +98,14 @@ impl ArrayBoard {
         let mut horiz_count = 1;
         let mut x = 1;
         //Check rightward direction
-        while column + x < WIDTH && self.board[WIDTH*(self.heights[column] + 1) + column + x] == coin {
+        while column + x < WIDTH && self.board[WIDTH*self.heights[column] + column + x] == coin {
             x += 1;
             horiz_count += 1;
         }
         
         //Check leftward direction
         x = 1;
-        while column >= x && self.board[WIDTH*(self.heights[column] + 1) + column - x] == coin {
+        while column >= x && self.board[WIDTH*self.heights[column] + column - x] == coin {
             x += 1;
             horiz_count += 1;
         }
@@ -119,16 +119,16 @@ impl ArrayBoard {
         let mut direction = 1;
         
         //Check upper left direction
-        while column >= direction && direction + self.heights[column] + 1 < HEIGHT 
-                && self.board[WIDTH*(self.heights[column] + 1 + direction) + column - direction] == coin {
+        while column >= direction && direction + self.heights[column] < HEIGHT 
+                && self.board[WIDTH*(self.heights[column] + direction) + column - direction] == coin {
             direction += 1;
             left_diag_count += 1;
         }
         
         //Check bottom right direction
         direction = 1;
-        while column + direction < WIDTH && self.heights[column] + 1 >= direction 
-                && self.board[WIDTH*(self.heights[column] + 1 - direction) + column + direction] == coin {
+        while column + direction < WIDTH && self.heights[column] >= direction 
+                && self.board[WIDTH*(self.heights[column] - direction) + column + direction] == coin {
             direction += 1;
             left_diag_count += 1;
         }
@@ -142,16 +142,16 @@ impl ArrayBoard {
         direction = 1;
         
         //Check upper right direction
-        while column + direction < WIDTH && column + self.heights[column] + 1 < HEIGHT 
-                && self.board[WIDTH*(self.heights[column] + 1 + direction) + column + direction] == coin {
+        while column + direction < WIDTH && column + self.heights[column] < HEIGHT 
+                && self.board[WIDTH*(self.heights[column] + direction) + column + direction] == coin {
             direction += 1;
             right_diag_count += 1;
         }
         
         //Check bottom left direction
         direction = 1;
-        while column >= direction && self.heights[column] + 1 >= direction 
-                && self.board[WIDTH*(self.heights[column] + 1 - direction) + column - direction] == coin {
+        while column >= direction && self.heights[column] >= direction 
+                && self.board[WIDTH*(self.heights[column] - direction) + column - direction] == coin {
             direction += 1;
             right_diag_count += 1;
         }
