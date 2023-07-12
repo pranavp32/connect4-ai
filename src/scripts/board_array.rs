@@ -1,3 +1,5 @@
+use rand::Rng;
+
 const HEIGHT: usize = 6; 
 const WIDTH: usize = 7;
 
@@ -56,6 +58,14 @@ impl ArrayBoard {
         self.moves.push_str(&column.to_string());
 
         return Ok(self.state);
+    }
+    pub fn ai_move(&mut self) -> Result<GameState, String> {
+        let mut ran = rand::thread_rng(); 
+        let mut column = ran.gen_range(1..=7);
+        while !self.is_move_valid(column){
+            column = ran.gen_range(1..=7);
+        }
+        self.play_turn(column)
     }
 
     pub fn play_move(&mut self, column: usize) { 

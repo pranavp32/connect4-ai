@@ -31,8 +31,14 @@ impl Component for Connect4 {
         match msg {
             Msg::ColumnClicked(column) => {
                 if !self.game_over {
-                    if let Ok(state) = self.array_board.play_turn(column) {
-                        self.handle_game_state(state);
+                    if let Ok(state1) = self.array_board.play_turn(column) {
+                        self.handle_game_state(state1);
+                        if let Ok(state2) = self.array_board.ai_move() {
+                            self.handle_game_state(state2);
+                        }else {
+                            println!("Column full, choose another column");
+                        }
+                        
                     } else {
                         println!("Column full, choose another column");
                     }
