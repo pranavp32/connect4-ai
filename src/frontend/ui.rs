@@ -118,7 +118,7 @@ impl Connect4 {
             false => "Yellow",
         };
 
-        let state_message = match self.array_board.state {
+        let _state_message = match self.array_board.state {
             GameState::Default => return html! {
                 <div class="turn-message">
                     { format!("It's your turn: {}", current_player) }
