@@ -33,12 +33,13 @@ impl Component for Connect4 {
                 if !self.game_over {
                     if let Ok(state1) = self.array_board.play_turn(column) {
                         self.handle_game_state(state1);
-                        if let Ok(state2) = self.array_board.ai_move() {
-                            self.handle_game_state(state2);
-                        }else {
-                            println!("Column full, choose another column");
+                        if !self.game_over {
+                            if let Ok(state2) = self.array_board.ai_move() {
+                                self.handle_game_state(state2);
+                            }else {
+                                println!("Column full, choose another column");
+                            }
                         }
-                        
                     } else {
                         println!("Column full, choose another column");
                     }
@@ -165,7 +166,7 @@ impl Connect4 {
         match state {
             GameState::Win | GameState::Loss | GameState::Tie => {
                 self.game_over = true;
-                self.render_turn_message();
+                self.render_game_state_message();
             }
             GameState::Default => {}
         }
