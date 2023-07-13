@@ -61,9 +61,9 @@ impl ArrayBoard {
     }
     pub fn ai_move(&mut self) -> Result<GameState, String> {
         let mut ran = rand::thread_rng(); 
-        let mut column = ran.gen_range(1..=7);
+        let mut column = ran.gen_range(0..=6);
         while !self.is_move_valid(column){
-            column = ran.gen_range(1..=7);
+            column = ran.gen_range(0..=6);
         }
         self.play_turn(column)
     }
