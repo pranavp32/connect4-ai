@@ -61,9 +61,9 @@ impl ArrayBoard {
     }
     pub fn ai_move(&mut self) -> Result<GameState, String> {
         let mut ran = rand::thread_rng(); 
-        let mut column = ran.gen_range(1..=7);
+        let mut column = ran.gen_range(0..=6);
         while !self.is_move_valid(column){
-            column = ran.gen_range(1..=7);
+            column = ran.gen_range(0..=6);
         }
         self.play_turn(column)
     }
@@ -152,7 +152,7 @@ impl ArrayBoard {
         direction = 1;
         
         //Check upper right direction
-        while column + direction < WIDTH && column + self.heights[column] < HEIGHT 
+        while column + direction < WIDTH && direction + self.heights[column] < HEIGHT 
                 && self.board[WIDTH*(self.heights[column] + direction) + column + direction] == coin {
             direction += 1;
             right_diag_count += 1;
