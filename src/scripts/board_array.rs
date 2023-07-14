@@ -152,7 +152,7 @@ impl ArrayBoard {
         direction = 1;
         
         //Check upper right direction
-        while column + direction < WIDTH && column + self.heights[column] < HEIGHT 
+        while column + direction < WIDTH && direction + self.heights[column] < HEIGHT 
                 && self.board[WIDTH*(self.heights[column] + direction) + column + direction] == coin {
             direction += 1;
             right_diag_count += 1;
