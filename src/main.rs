@@ -1,4 +1,3 @@
-use yew::prelude::*;
 mod frontend;
 mod scripts;
 

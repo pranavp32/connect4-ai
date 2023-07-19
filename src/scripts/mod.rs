@@ -1,1 +1,2 @@
-pub mod board_array;
+pub mod array_board;
+pub mod ai;

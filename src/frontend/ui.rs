@@ -1,5 +1,6 @@
 use yew::prelude::*;
-use crate::scripts::board_array::{ArrayBoard, Cell, GameState};
+use crate::scripts::array_board::{ArrayBoard, Cell, GameState};
+use crate::scripts::ai::{AIGame};
 
 const HEIGHT: usize = 6;
 const WIDTH: usize = 7;
@@ -8,6 +9,7 @@ pub struct Connect4 {
     link: ComponentLink<Self>,
     array_board: ArrayBoard,
     game_over: bool,
+    ai: AIGame,
 }
 
 pub enum Msg {
@@ -24,9 +26,10 @@ impl Component for Connect4 {
             link,
             array_board: ArrayBoard::new(),
             game_over: false,
+            ai: AIGame::new(),
         }
     }
-
+ 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ColumnClicked(column) => {
@@ -34,7 +37,7 @@ impl Component for Connect4 {
                     if let Ok(state1) = self.array_board.play_turn(column) {
                         self.handle_game_state(state1);
                         if !self.game_over {
-                            if let Ok(state2) = self.array_board.ai_move() {
+                            if let Ok(state2) = self.ai.make_move(&mut self.array_board) {
                                 self.handle_game_state(state2);
                             }else {
                                 println!("Column full, choose another column");
