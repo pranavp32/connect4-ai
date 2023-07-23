@@ -50,13 +50,14 @@ impl ArrayBoard {
         self.play_move(column);
 
         if self.is_winning_move(column) {
-            self.state = if !self.red_turn {Win} else {Loss}
+            self.state = if self.red_turn {Win} else {Loss}
         } else if self.is_draw() {
             self.state = Tie;
         } else {
             self.state = Default;
         }
         
+        self.red_turn = !self.red_turn;
         self.moves.push_str(&column.to_string());
 
         return Ok(self.state);
@@ -75,7 +76,6 @@ impl ArrayBoard {
 
         self.board[WIDTH*(self.heights[column] - 1) + column] = Cell::Empty;
         self.heights[column] -= 1;
-        self.red_turn = !self.red_turn;
         
         Ok(self.state)
     }
@@ -96,7 +96,6 @@ impl ArrayBoard {
         //Find height and multiply by width to find index of row and then add column offset
         self.board[WIDTH*self.heights[column] + column] = coin;
         self.heights[column] += 1;
-        self.red_turn = !self.red_turn;
     }   
 
     pub fn is_move_valid(&self, column: usize) -> bool {

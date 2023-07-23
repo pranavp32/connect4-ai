@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "Connect4-AI"
-version = "0.1.0"
-dependencies = [
- "getrandom",
- "rand",
- "yew",
-]
-
-[[package]]
 name = "anyhow"
 version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -73,6 +64,15 @@ name = "cfg-match"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8100e46ff92eb85bf6dc2930c73f2a4f7176393c84a9446b3d501e1b354e7b34"
+
+[[package]]
+name = "connect4-ai"
+version = "0.1.0"
+dependencies = [
+ "getrandom",
+ "rand",
+ "yew",
+]
 
 [[package]]
 name = "console_error_panic_hook"

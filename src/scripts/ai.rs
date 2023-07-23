@@ -12,11 +12,11 @@ impl AIGame {
 
     pub fn make_move(&self, game: &mut ArrayBoard) -> Result<GameState, String> {
         let mut best_move = 0;
-        let mut best_score = std::i32::MIN;
+        let mut best_score = std::i64::MIN;
 
         for col in 0..WIDTH {
             if game.is_move_valid(col) {
-                let score = self.negamax(game, std::i32::MIN, std::i32::MAX);
+                let score = self.negamax(game, -22, 22);
 
                 if score > best_score {
                     best_move = col;
@@ -28,7 +28,7 @@ impl AIGame {
         return game.play_turn(best_move);
     }
 
-    pub fn negamax(&self, game: &mut ArrayBoard, mut alpha: i32, mut beta: i32) -> i32 {
+    pub fn negamax(&self, game: &mut ArrayBoard, mut alpha: i64, mut beta: i64) -> i64 {
         if game.is_draw() {
             return 0;
         }
@@ -52,8 +52,9 @@ impl AIGame {
         for col in 0..WIDTH {
             if game.is_move_valid(col) {
                 game.play_move(col);
-                let score = -1 * self.negamax(game, -beta, -alpha); 
-                
+                let score = -self.negamax(game, -beta, -alpha);
+                let _ = game.undo_move(col);
+
                 if score >= beta {
                     return score;
                 } 
@@ -61,8 +62,6 @@ impl AIGame {
                 if score > alpha {
                     alpha = score;
                 }
-
-                game.undo_move(col);
             }
         }
 
