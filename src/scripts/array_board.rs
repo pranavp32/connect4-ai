@@ -20,8 +20,7 @@ use GameState::{Win, Loss, Tie, Default};
 
 pub struct ArrayBoard {
     pub board: [Cell; WIDTH * HEIGHT], //board where coins will be stored in row-major order from bottom to top
-    red_moves: usize, //number of played moves by red
-    yellow_moves: usize, //number of played moves by yellow
+    num_moves: usize, //total number of moves played in the current game
     pub red_turn: bool, //used to signify whose turn it is
     heights: [usize; WIDTH], //height of each column (number of coins in each col)
     pub moves: String, //numeric string to signify sequence of moves
@@ -33,8 +32,7 @@ impl ArrayBoard {
     pub fn new() -> Self {
         Self {
             board: [Cell::Empty; WIDTH * HEIGHT], 
-            red_moves: 0,
-            yellow_moves: 0,
+            num_moves: 0,
             red_turn: true,
             heights: [0; WIDTH],
             moves: String::new(),
@@ -47,17 +45,15 @@ impl ArrayBoard {
             return Err("Column is full. Choose another move!".to_string());
         }
 
-        self.play_move(column);
-
         if self.is_winning_move(column) {
-            self.state = if self.red_turn {Win} else {Loss}
+            self.state = if self.red_turn {Win} else {Loss};
         } else if self.is_draw() {
             self.state = Tie;
         } else {
             self.state = Default;
         }
         
-        self.red_turn = !self.red_turn;
+        self.play_move(column);
         self.moves.push_str(&column.to_string());
 
         return Ok(self.state);
@@ -68,12 +64,8 @@ impl ArrayBoard {
             return Err("Column in empty!".to_string())
         }
 
-        if self.red_turn {
-            self.red_moves -= 1;
-        } else {
-            self.yellow_moves -= 1;
-        }
-
+        self.red_turn = !self.red_turn;
+        self.num_moves -= 1;
         self.board[WIDTH*(self.heights[column] - 1) + column] = Cell::Empty;
         self.heights[column] -= 1;
         
@@ -87,15 +79,11 @@ impl ArrayBoard {
             Cell::Yellow
         };
 
-        if self.red_turn {
-            self.red_moves += 1;
-        } else {
-            self.yellow_moves += 1;
-        }
-
+        self.num_moves += 1;
         //Find height and multiply by width to find index of row and then add column offset
         self.board[WIDTH*self.heights[column] + column] = coin;
         self.heights[column] += 1;
+        self.red_turn = !self.red_turn;
     }   
 
     pub fn is_move_valid(&self, column: usize) -> bool {
@@ -103,15 +91,11 @@ impl ArrayBoard {
     }
 
     pub fn is_draw(&self) -> bool {
-        return (self.red_moves + self.yellow_moves) == (WIDTH * HEIGHT);
+        return self.num_moves == (WIDTH * HEIGHT);
     }
 
     pub fn get_num_moves(&self) -> usize {
-        if self.red_turn {
-            return self.red_moves;
-        } else {
-            return self.yellow_moves;
-        }
+        return self.num_moves;
     }
 
     pub fn is_winning_move(&self, column: usize) -> bool {
@@ -127,7 +111,7 @@ impl ArrayBoard {
         && self.board[WIDTH*(self.heights[column] - 2) + column] == coin
         && self.board[WIDTH*(self.heights[column] - 3) + column] == coin {
             return true;
-        }
+        }       
         
         //Check horizontal direction
         let mut horiz_count = 1;

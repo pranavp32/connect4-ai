@@ -40,7 +40,7 @@ impl Component for Connect4 {
                             if let Ok(state2) = self.ai.make_move(&mut self.array_board) {
                                 self.handle_game_state(state2);
                             }else {
-                                println!("Column full, choose another column");
+                                println!("Column full, chooszce another column");
                             }
                         }
                     } else {
