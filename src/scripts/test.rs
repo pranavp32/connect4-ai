@@ -185,14 +185,20 @@ impl ArrayBoard {
 } 
 
 pub struct AIGame {
-    depth: usize,
+    column_order: [i64;WIDTH],
 }
 
 impl AIGame {
     pub fn new() -> Self {
-        Self {
-            depth: 4,
-        }
+            let mut column_order = [0; WIDTH];
+
+            for i in 0..WIDTH {
+                column_order[i] = WIDTH as i64 / 2 + (1 - 2 * (i as i64 % 2)) * (i as i64 + 1) / 2;
+            }
+
+            AIGame {
+                column_order
+            }
     }
 
     pub fn make_move(&self, game: &mut ArrayBoard) -> Result<GameState, String> {
@@ -200,10 +206,11 @@ impl AIGame {
         let mut best_score = std::i64::MIN;
 
         for col in 0..WIDTH {
-            let temp_depth = self.depth;
-
             if game.is_move_valid(col) {
-                let score = self.negamax(game, std::i64::MIN, std::i64::MAX, temp_depth);
+                let init:i64 = (WIDTH*HEIGHT/2).try_into().unwrap();
+                game.play_move(col);
+                let score = -self.negamax(game, init, -init, 13);
+                let _ = game.undo_move(col);
 
                 if score > best_score {
                     best_move = col;
@@ -211,20 +218,31 @@ impl AIGame {
                 }
             }
         }
-
+        
+        println!("{}", best_move);
         return game.play_turn(best_move);
     }
 
-   pub fn negamax(&self, game: &mut ArrayBoard, mut alpha: i64, mut beta: i64, depth: usize) -> i64 {
-        if game.is_draw() {
+    pub fn negamax(&self, game: &mut ArrayBoard, mut alpha: i64, mut beta: i64, mut depth: i64) -> i64 {
+        if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
         } else if depth == 0 {
-            return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2).try_into().unwrap();   
+            return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
         }
 
         for col in 0..WIDTH {
             if game.is_move_valid(col) && game.is_winning_move(col) {
-                return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2).try_into().unwrap();
+                return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+            }
+        }
+
+        let min = -(((WIDTH * HEIGHT - 2 - game.get_num_moves()) / 2) as i64);
+
+        if alpha < min {
+            alpha = min;                     
+            
+            if alpha >= beta {
+                return alpha; 
             }
         }
 
@@ -238,13 +256,10 @@ impl AIGame {
             }
         }
 
-        let temp_alpha = -alpha.clamp(-max, max);
-        let temp_beta = -beta.clamp(-max, max);
-
         for col in 0..WIDTH {
             if game.is_move_valid(col) {
                 game.play_move(col);
-                let score = -self.negamax(game, temp_beta, temp_alpha, depth - 1);
+                let score = -self.negamax(game, -beta, -alpha, depth - 1);
                 let _ = game.undo_move(col);
 
                 if score >= beta {
@@ -265,6 +280,9 @@ fn main() {
     let mut array_board = ArrayBoard::new();
     let ai = AIGame::new();
     
-    let _ = array_board.play_turn(3);
-    let _ = ai.make_move(&mut array_board);
+    array_board.play_move(3);
+    array_board.play_move(3);
+    array_board.play_move(4);
+    array_board.play_move(4);
+    ai.make_move(&mut array_board);
 }
