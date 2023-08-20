@@ -22,10 +22,9 @@ use GameState::{Win, Loss, Tie, Default};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct ArrayBoard {
-    pub board: [Cell; WIDTH * HEIGHT], //board where coins will be stored in row-major order from bottom to top
+    pub current_player: u64, //current player bitboard
     num_moves: usize, //total number of moves played in the current game
     pub red_turn: bool, //used to signify whose turn it is
-    heights: [usize; WIDTH], //height of each column (number of coins in each col)
     pub state: GameState, //current game state
 }
 
