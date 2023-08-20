@@ -113,9 +113,22 @@ impl BitBoard {
 
     pub fn is_winning_move(&self, column: usize) -> bool {
         let positon:u64 = self.total_mask ^ self.player_mask if !self.red_turn else self.player_mask;
+        let n:u64 = position;
 
         //horizontal direction
-        let n:u64 = 
+        if n & (n >> 3 * (HEIGHT + 1)) {
+            return true;
+        }
+
+        //vertical direction
+        if n & (n >> 3) {
+            return true;
+        }
+
+        //diagonal = (/) and diagonal = (\)
+        if n & (n >> (3 * HEIGHT)) || n & (n << (3 * HEIGHT)) {
+            return true;
+        }
         
     }
 } 
