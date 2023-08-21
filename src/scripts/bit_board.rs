@@ -56,11 +56,11 @@ impl BitBoard {
 
     pub fn is_move_valid(&self, column: usize) -> bool {
         let col: usize = WIDTH - column - 1;
-        return mask & top_col_mask(col) == 0;
+        return self.total_mask & self.top_col_mask(col) == 0;
     }
 
     pub fn get_height_mask(&self) -> u64 {
-        return mask + self.bottom_row;
+        return self.total_mask + self.bottom_row;
     }
 
     pub fn undo_move(&mut self, column: usize) -> Result<GameState, String> {
@@ -74,7 +74,7 @@ impl BitBoard {
         self.num_moves -= 1;
 
         if self.red_turn {
-            self.player_mask ^= (((self.player_mask + self.bottom_col_mask(col))) & self.height_mask()) >> 1;
+            self.player_mask ^= (((self.player_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;
         }
 
         self.total_mask ^= (((self.total_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;        
@@ -124,7 +124,7 @@ impl BitBoard {
     pub fn is_winning_move(&self, column: usize) -> bool {
         let col: usize = WIDTH - column - 1;
         self.play_move(column);
-        let positon:u64 = self.total_mask ^ self.player_mask if self.red_turn else self.player_mask;
+        let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
         self.undo_move(column);
         let n:u64 = position;
 

@@ -1,5 +1,6 @@
 use yew::prelude::*;
-use crate::scripts::array_board::{ArrayBoard, Cell, GameState};
+// use crate::scripts::array_board::{ArrayBoard, Cell, GameState};
+use crate::scripts::bit_board::{BitBoard, GameState};
 use crate::scripts::ai::{AIGame};
 
 const HEIGHT: usize = 6;
@@ -7,7 +8,8 @@ const WIDTH: usize = 7;
 
 pub struct Connect4 {
     link: ComponentLink<Self>,
-    array_board: ArrayBoard,
+    // array_board: ArrayBoard,
+    bit_board: BitBoard,
     game_over: bool,
     ai: AIGame,
 }
@@ -24,20 +26,21 @@ impl Component for Connect4 {
     fn create(_: Self::Properties, link: ComponentLink<Self>) -> Self {
         Connect4 {
             link,
-            array_board: ArrayBoard::new(),
+            // array_board: ArrayBoard::new(),
+            bit_board: BitBoard::new(),
             game_over: false,
             ai: AIGame::new(),
         }
     }
- 
+
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::ColumnClicked(column) => {
                 if !self.game_over {
-                    if let Ok(state1) = self.array_board.play_turn(column) {
+                    if let Ok(state1) = self.bit_board.play_turn(column) {
                         self.handle_game_state(state1);
                         if !self.game_over {
-                            if let Ok(state2) = self.ai.make_move(&mut self.array_board) {
+                            if let Ok(state2) = self.bit_board.play_turn(column) {
                                 self.handle_game_state(state2);
                             }else {
                                 println!("Column full, chooszce another column");
@@ -57,7 +60,8 @@ impl Component for Connect4 {
     }
 
     fn change(&mut self, _: Self::Properties) -> ShouldRender {
-        self.array_board = ArrayBoard::new();
+        // self.array_board = ArrayBoard::new();
+        self.bit_board = BitBoard::new();
         true
     }
 
@@ -92,14 +96,25 @@ impl Component for Connect4 {
 
 impl Connect4 {
     fn render_cell(&self, row: usize, column: usize) -> Html {
-        let index = ((HEIGHT - 1 - row) * WIDTH) + column;
-        let cell = self.array_board.board[index];
+        // let index = ((HEIGHT - 1 - row) * WIDTH) + column;
+        // let cell = self.array_board.board[index];
 
-        let coin_class = match cell {
-            Cell::Red => "red",
-            Cell::Yellow => "yellow",
-            Cell::Empty => "empty",
-        };
+        // let coin_class = match cell {
+        //     Cell::Red => "red",
+        //     Cell::Yellow => "yellow",
+        //     Cell::Empty => "empty",
+        // };
+        let col = WIDTH - 1 - column;
+        let elem = self.bit_board.total_mask & ((1 << (HEIGHT - 1 - row)) << (HEIGHT + 1) * col);
+        let mut coin_class = "";
+
+        if elem == 0 {
+            coin_class = "empty";
+        } else if self.bit_board.red_turn {
+            coin_class = "red";
+        } else {
+            coin_class = "yellow";
+        }
 
         html! {
             <div class=("cell", coin_class)></div>
@@ -123,12 +138,12 @@ impl Connect4 {
     }
 
     fn render_turn_message(&self) -> Html {
-        let current_player = match self.array_board.red_turn {
+        let current_player = match self.bit_board.red_turn {
             true => "Red",
             false => "Yellow",
         };
 
-        let _state_message = match self.array_board.state {
+        let _state_message = match self.bit_board.state {
             GameState::Default => return html! {
                 <div class="turn-message">
                     { format!("It's your turn: {}", current_player) }
@@ -139,7 +154,7 @@ impl Connect4 {
     }
 
     fn render_game_state_message(&self) -> Html {
-        let state_message = match self.array_board.state {
+        let state_message = match self.bit_board.state {
             GameState::Win => "You won :D",
             GameState::Loss => "You lost :(",
             GameState::Tie => "Tie :|",
@@ -176,7 +191,8 @@ impl Connect4 {
     }
 
     fn start_new_game(&mut self) {
-        self.array_board = ArrayBoard::new();
+        // self.array_board = ArrayBoard::new();
+        self.bit_board = BitBoard::new();
         self.game_over = false;
     }
 }
