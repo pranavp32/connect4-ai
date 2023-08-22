@@ -39,17 +39,17 @@ impl BitBoard {
         }
     }
 
-    pub fn top_col_mask(column: usize) -> u64 {
+    pub fn top_col_mask(&self, column: usize) -> u64 {
         let col: usize = WIDTH - column - 1;
         return (1 << (HEIGHT - 1)) << ((HEIGHT + 1) * col);
     }
 
-    pub fn bottom_col_mask(column: usize) -> u64 {
+    pub fn bottom_col_mask(&self, column: usize) -> u64 {
         let col: usize = WIDTH - column - 1;
         return 1 << ((HEIGHT + 1) * col);
     }
 
-    pub fn full_col_mask(column: usize) -> u64 {
+    pub fn full_col_mask(&self, column: usize) -> u64 {
         let col: usize = WIDTH - column - 1;
         return ((1 << HEIGHT) - 1) << ((HEIGHT + 1) * col);
     }
@@ -121,7 +121,7 @@ impl BitBoard {
         return self.num_moves;
     }
 
-    pub fn is_winning_move(&self, column: usize) -> bool {
+    pub fn is_winning_move(&mut self, column: usize) -> bool {
         let col: usize = WIDTH - column - 1;
         self.play_move(column);
         let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
@@ -129,19 +129,20 @@ impl BitBoard {
         let n:u64 = position;
 
         //horizontal direction
-        if n & (n >> 3 * (HEIGHT + 1)) {
+        if n & (n >> 3 * (HEIGHT + 1)) > 0 {
             return true;
         }
 
         //vertical direction
-        if n & (n >> 3) {
+        if n & (n >> 3) > 0 {
             return true;
         }
 
         //diagonal = (/) and diagonal = (\)
-        if n & (n >> (3 * (HEIGHT + 2))) || n & (n << (3 * HEIGHT)) {
+        if n & (n >> (3 * (HEIGHT + 2))) > 0 || n & (n << (3 * HEIGHT)) > 0 {
             return true;
         }
         
+        return false;
     }
 } 

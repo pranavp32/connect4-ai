@@ -104,16 +104,19 @@ impl Connect4 {
         //     Cell::Yellow => "yellow",
         //     Cell::Empty => "empty",
         // };
-        let col = WIDTH - 1 - column;
-        let elem = self.bit_board.total_mask & ((1 << (HEIGHT - 1 - row)) << (HEIGHT + 1) * col);
+        let red_board = self.bit_board.player_mask;
+        let yellow_board = self.bit_board.total_mask ^ red_board;
+        let align = self.bit_board.bottom_col_mask(column) << (HEIGHT - 1 - row);
+        let red_elem = red_board & align;
+        let yellow_elem = yellow_board & align;
         let mut coin_class = "";
 
-        if elem == 0 {
-            coin_class = "empty";
-        } else if self.bit_board.red_turn {
+        if red_elem != 0 && yellow_elem == 0 {
             coin_class = "red";
-        } else {
+        } else if yellow_elem != 0 && red_elem == 0 {
             coin_class = "yellow";
+        } else {
+            coin_class = "empty";
         }
 
         html! {
