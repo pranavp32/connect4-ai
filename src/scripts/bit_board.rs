@@ -72,23 +72,26 @@ impl BitBoard {
         
         self.red_turn = !self.red_turn;
         self.num_moves -= 1;
+        let yellow_mask:u64 = self.player_mask ^ self.total_mask;
+        self.total_mask ^= (((self.total_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;        
 
         if self.red_turn {
-            self.player_mask ^= (((self.player_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;
+            self.player_mask = yellow_mask ^ self.total_mask;
         }
 
-        self.total_mask ^= (((self.total_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;        
         Ok(self.state)
     }
 
     pub fn play_move(&mut self, column: usize) { 
         let col: usize = WIDTH - column - 1;
 
+        let yellow_mask:u64 = self.player_mask ^ self.total_mask;
+        self.total_mask |= self.total_mask + self.bottom_col_mask(col);
+
         if self.red_turn {
-            self.player_mask |= self.player_mask + self.bottom_col_mask(col);
+            self.player_mask = yellow_mask ^ self.total_mask;
         }
 
-        self.total_mask |= self.total_mask + self.bottom_col_mask(col);
         self.num_moves += 1;
         self.red_turn = !self.red_turn;
     }   

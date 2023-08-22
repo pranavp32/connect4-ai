@@ -1,8 +1,5 @@
 use std::convert::TryInto;
 
-const HEIGHT: usize = 6; 
-const WIDTH: usize = 7;
-
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum GameState {
     Win,
@@ -76,7 +73,7 @@ impl BitBoard {
         self.num_moves -= 1;
 
         if self.red_turn {
-            self.player_mask ^= (((self.player_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;
+            self.player_mask ^= (((self.get_height_mask() >> col*(HEIGHT + 1)) << (WIDTH - 1)*(HEIGHT + 1)) >> column * (HEIGHT + 1)) >> 1;
         }
 
         self.total_mask ^= (((self.total_mask + self.bottom_col_mask(col))) & self.get_height_mask()) >> 1;        
@@ -87,7 +84,7 @@ impl BitBoard {
         let col: usize = WIDTH - column - 1;
 
         if self.red_turn {
-            self.player_mask |= self.player_mask + self.bottom_col_mask(col);
+            self.player_mask |= ((self.get_height_mask() >> col*(HEIGHT + 1)) << WIDTH*(HEIGHT + 1)) >> column*(HEIGHT + 1);
         }
 
         self.total_mask |= self.total_mask + self.bottom_col_mask(col);
@@ -149,12 +146,17 @@ impl BitBoard {
     }
 } 
 
-
 fn main() {
     let mut bit_board = BitBoard::new();
     
     bit_board.play_move(3);
-    bit_board.play_move(3);
-    bit_board.play_move(4);
-    bit_board.play_move(4);
+    // bit_board.play_move(3);
+    // bit_board.play_move(4);
+    // bit_board.play_move(4);
+
+    let red_board = bit_board.player_mask;
+    let yellow_board = bit_board.total_mask ^ red_board;
+    let align = bit_board.bottom_col_mask(column) << (HEIGHT - 1 - row);
+    let red_elem = red_board & align;
+    let yellow_elem = yellow_board & align;
 }
