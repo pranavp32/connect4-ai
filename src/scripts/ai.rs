@@ -1,4 +1,4 @@
-use crate::scripts::array_board::{ArrayBoard, GameState};
+use crate::scripts::bit_board::{BitBoard, GameState};
 
 const HEIGHT: usize = 6;
 const WIDTH: usize = 7;
@@ -20,7 +20,7 @@ impl AIGame {
             }
     }
 
-    pub fn make_move(&self, game: &mut ArrayBoard) -> Result<GameState, String> {
+    pub fn make_move(&self, game: &mut BitBoard) -> Result<GameState, String> {
         let mut best_move = 0;
         let mut best_score = std::i64::MIN;
 
@@ -47,7 +47,7 @@ impl AIGame {
         return game.play_turn(best_move);
     }
 
-    pub fn negamax(&self, game: &mut ArrayBoard, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
+    pub fn negamax(&self, game: &mut BitBoard, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
         if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
         } else if depth == 0 {

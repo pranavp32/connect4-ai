@@ -39,13 +39,13 @@ impl Component for Connect4 {
                 if !self.game_over {
                     if let Ok(state1) = self.bit_board.play_turn(column) {
                         self.handle_game_state(state1);
-                        if !self.game_over {
-                            if let Ok(state2) = self.bit_board.play_turn(column) {
-                                self.handle_game_state(state2);
-                            }else {
-                                println!("Column full, chooszce another column");
-                            }
-                        }
+                        // if !self.game_over {
+                        //     if let Ok(state2) = self.ai.make_move(&mut self.bit_board) {
+                        //         self.handle_game_state(state2);
+                        //     }else {
+                        //         println!("Column full, chooszce another column");
+                        //     }
+                        // }
                     } else {
                         println!("Column full, choose another column");
                     }
@@ -136,13 +136,13 @@ impl Connect4 {
     fn render_button(&self, column: usize) -> Html {
         html! {
             <button onclick=self.link.callback(move |_| Msg::ColumnClicked(column))>
-                {"|⇩⇩|"}
+                {"⇩"}
             </button>
         }
     }
 
     fn render_turn_message(&self) -> Html {
-        let current_player = match self.array_board.red_turn {
+        let current_player = match self.bit_board.red_turn {
             true => "Red's Turn",
             false => "Yellow's Turn",
         };
