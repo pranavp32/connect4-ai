@@ -68,6 +68,7 @@ impl Component for Connect4 {
     fn view(&self) -> Html {
         let css = include_str!("ui.css");
         let game_result = self.render_game_state_message();
+        let game_turn = self.render_turn_message();
         let new_game = self.render_new_game();
 
         html! {
@@ -80,7 +81,7 @@ impl Component for Connect4 {
                         { for (0..WIDTH).map(|column| self.render_button(column)) }
                     </div>
                     <div class="message">
-                        { self.render_turn_message() }
+                        { game_turn }
                         { game_result }
                     </div>
                     
@@ -141,19 +142,16 @@ impl Connect4 {
     }
 
     fn render_turn_message(&self) -> Html {
-        let current_player = match self.bit_board.red_turn {
-            true => "Red",
-            false => "Yellow",
+        let current_player = match self.array_board.red_turn {
+            true => "Red's Turn",
+            false => "Yellow's Turn",
         };
 
-        let _state_message = match self.bit_board.state {
-            GameState::Default => return html! {
-                <div class="turn-message">
-                    { format!("It's your turn: {}", current_player) }
-                </div>
-            },
-            _ => return html! {}
-        };
+        html!{
+            <div class="turn-message">
+                {current_player}
+            </div>
+        }
     }
 
     fn render_game_state_message(&self) -> Html {
