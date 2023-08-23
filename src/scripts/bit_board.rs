@@ -39,23 +39,19 @@ impl BitBoard {
         }
     }
 
-    pub fn top_col_mask(&self, column: usize) -> u64 {
-        let col: usize = WIDTH - column - 1;
+    pub fn top_col_mask(&self, col: usize) -> u64 {
         return (1 << (HEIGHT - 1)) << ((HEIGHT + 1) * col);
     }
 
-    pub fn bottom_col_mask(&self, column: usize) -> u64 {
-        let col: usize = WIDTH - column - 1;
+    pub fn bottom_col_mask(&self, col: usize) -> u64 {
         return 1 << ((HEIGHT + 1) * col);
     }
 
-    pub fn full_col_mask(&self, column: usize) -> u64 {
-        let col: usize = WIDTH - column - 1;
+    pub fn full_col_mask(&self, col: usize) -> u64 {
         return ((1 << HEIGHT) - 1) << ((HEIGHT + 1) * col);
     }
 
-    pub fn is_move_valid(&self, column: usize) -> bool {
-        let col: usize = WIDTH - column - 1;
+    pub fn is_move_valid(&self, col: usize) -> bool {
         return self.total_mask & self.top_col_mask(col) == 0;
     }
 
@@ -63,9 +59,7 @@ impl BitBoard {
         return self.total_mask + self.bottom_row;
     }
 
-    pub fn undo_move(&mut self, column: usize) -> Result<GameState, String> {
-        let col: usize = WIDTH - column - 1;
-
+    pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
         if self.total_mask & self.bottom_col_mask(col) == 0 {
             return Err("Column in empty!".to_string())
         }
@@ -82,9 +76,7 @@ impl BitBoard {
         Ok(self.state)
     }
 
-    pub fn play_move(&mut self, column: usize) { 
-        let col: usize = WIDTH - column - 1;
-
+    pub fn play_move(&mut self, col: usize) { 
         let yellow_mask:u64 = self.player_mask ^ self.total_mask;
         self.total_mask |= self.total_mask + self.bottom_col_mask(col);
 
@@ -96,9 +88,7 @@ impl BitBoard {
         self.red_turn = !self.red_turn;
     }   
 
-    pub fn play_turn(&mut self, column: usize) -> Result<GameState, String> {
-        let col: usize = WIDTH - column - 1;
-
+    pub fn play_turn(&mut self, col: usize) -> Result<GameState, String> {
         if !self.is_move_valid(col) {
             return Err("Column is full. Choose another move!".to_string());
         }
@@ -124,25 +114,32 @@ impl BitBoard {
         return self.num_moves;
     }
 
-    pub fn is_winning_move(&mut self, column: usize) -> bool {
-        let col: usize = WIDTH - column - 1;
-        self.play_move(column);
+    pub fn is_winning_move(&mut self, col: usize) -> bool {
+        self.play_move(col);
         let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
-        self.undo_move(column);
-        let n:u64 = position;
+        self.undo_move(col);
 
         //horizontal direction
-        if n & (n >> 3 * (HEIGHT + 1)) > 0 {
+        let n:u64 = position & (position >> (HEIGHT + 1));
+        if n & (n >> 2 * (HEIGHT + 1)) > 0 {
             return true;
         }
 
         //vertical direction
-        if n & (n >> 3) > 0 {
+        let n:u64 = position & (position >> 1);
+        if n & (n >> 2) > 0 {
             return true;
         }
 
-        //diagonal = (/) and diagonal = (\)
-        if n & (n >> (3 * (HEIGHT + 2))) > 0 || n & (n << (3 * HEIGHT)) > 0 {
+        //diagonal = (/) direction
+        let n:u64 = position & (position >> (HEIGHT - 1));
+        if n & (n >> 2 * (HEIGHT - 2)) > 0 {
+            return true;
+        }
+        
+        //diagonal = (\) direction
+        let n:u64 = position & (position >> (HEIGHT + 2));
+        if n & (n >> 2 * (HEIGHT + 2)) > 0 {
             return true;
         }
         
