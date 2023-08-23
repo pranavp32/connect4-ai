@@ -39,13 +39,13 @@ impl Component for Connect4 {
                 if !self.game_over {
                     if let Ok(state1) = self.bit_board.play_turn(column) {
                         self.handle_game_state(state1);
-                        // if !self.game_over {
-                        //     if let Ok(state2) = self.ai.make_move(&mut self.bit_board) {
-                        //         self.handle_game_state(state2);
-                        //     }else {
-                        //         println!("Column full, chooszce another column");
-                        //     }
-                        // }
+                        if !self.game_over {
+                            if let Ok(state2) = self.ai.make_move(&mut self.bit_board) {
+                                self.handle_game_state(state2);
+                            }else {
+                                println!("Column full, chooszce another column");
+                            }
+                        }
                     } else {
                         println!("Column full, choose another column");
                     }
