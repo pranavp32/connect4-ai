@@ -1,4 +1,5 @@
 use crate::scripts::bit_board::{BitBoard, GameState};
+use crate::scripts::trans_table::{TranspositionTable};
 
 const HEIGHT: usize = 6;
 const WIDTH: usize = 7;
@@ -20,7 +21,7 @@ impl AIGame {
             }
     }
 
-    pub fn make_move(&self, game: &mut BitBoard) -> Result<GameState, String> {
+    pub fn make_move(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
         let mut best_move = 0;
         let mut best_score = std::i64::MIN;
 
@@ -34,7 +35,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, -init, init, 13);
+                let score = -self.negamax(game, trans_table, -init, init, 13);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -47,7 +48,7 @@ impl AIGame {
         return game.play_turn(best_move);
     }
 
-    pub fn negamax(&self, game: &mut BitBoard, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
+    pub fn negamax(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
         if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
         } else if depth == 0 {
@@ -59,7 +60,7 @@ impl AIGame {
                 return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
             }
         }
-        
+
         let min = -(((WIDTH * HEIGHT - 2 - game.get_num_moves()) / 2) as i64);
 
         if alpha < min {
@@ -70,8 +71,12 @@ impl AIGame {
             }
         }
 
-        let max = (WIDTH * HEIGHT - 1 - game.get_num_moves()) as i64 / 2;
-        
+        let mut max = (WIDTH * HEIGHT - 1 - game.get_num_moves()) as i64 / 2;
+        let val = trans_table.get(game.get_unique_key());
+        if val != 0 {
+            max = val as i64 - (WIDTH * HEIGHT / 2) as i64 + 3;
+        }
+
         if beta > max.try_into().unwrap() {
             beta = max.try_into().unwrap();
             
@@ -85,7 +90,7 @@ impl AIGame {
 
             if game.is_move_valid(chosen_col) {
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, -beta, -alpha, depth - 1);
+                let score = -self.negamax(game, trans_table, -beta, -alpha, depth - 1);
                 let _ = game.undo_move(chosen_col);
 
                 if score >= beta {
@@ -98,6 +103,7 @@ impl AIGame {
             }
         }
 
+        trans_table.insert(game.get_unique_key(), (alpha + (WIDTH * HEIGHT / 2) as i64 - 3) as u64);
         return alpha;
     }
 }

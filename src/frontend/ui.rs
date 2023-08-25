@@ -2,6 +2,7 @@ use yew::prelude::*;
 // use crate::scripts::array_board::{ArrayBoard, Cell, GameState};
 use crate::scripts::bit_board::{BitBoard, GameState};
 use crate::scripts::ai::{AIGame};
+use crate::scripts::trans_table::{TranspositionTable};
 
 const HEIGHT: usize = 6;
 const WIDTH: usize = 7;
@@ -12,6 +13,7 @@ pub struct Connect4 {
     bit_board: BitBoard,
     game_over: bool,
     ai: AIGame,
+    trans_table: TranspositionTable,
 }
 
 pub enum Msg {
@@ -30,6 +32,7 @@ impl Component for Connect4 {
             bit_board: BitBoard::new(),
             game_over: false,
             ai: AIGame::new(),
+            trans_table: TranspositionTable::new(),
         }
     }
 
@@ -39,13 +42,13 @@ impl Component for Connect4 {
                 if !self.game_over {
                     if let Ok(state1) = self.bit_board.play_turn(column) {
                         self.handle_game_state(state1);
-                        // if !self.game_over {
-                        //     if let Ok(state2) = self.ai.make_move(&mut self.bit_board) {
-                        //         self.handle_game_state(state2);
-                        //     }else {
-                        //         println!("Column full, chooszce another column");
-                        //     }
-                        // }
+                        if !self.game_over {
+                            if let Ok(state2) = self.ai.make_move(&mut self.bit_board, &mut self.trans_table) {
+                                self.handle_game_state(state2);
+                            }else {
+                                println!("Column full, chooszce another column");
+                            }
+                        }
                     } else {
                         println!("Column full, choose another column");
                     }

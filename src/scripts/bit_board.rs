@@ -59,6 +59,10 @@ impl BitBoard {
         return self.total_mask + self.bottom_row;
     }
 
+    pub fn get_unique_key(&self) -> u64 {
+        return self.player_mask + self.total_mask;
+    }
+
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
         if self.total_mask & self.bottom_col_mask(col) == 0 {
             return Err("Column in empty!".to_string())
@@ -132,8 +136,8 @@ impl BitBoard {
         }
 
         //diagonal = (/) direction
-        let n:u64 = position & (position >> (HEIGHT - 1));
-        if n & (n >> 2 * (HEIGHT - 2)) > 0 {
+        let n:u64 = position & (position >> HEIGHT);
+        if n & (n >> 2 * HEIGHT) > 0 {
             return true;
         }
         
