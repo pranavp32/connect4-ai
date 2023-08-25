@@ -8,6 +8,10 @@
   background-color: rgb(128, 214, 128);
 }
 
+body{
+  background-color: rgb(128, 214, 128);
+}
+
 .board {
   display: flex;
   flex-direction: column;

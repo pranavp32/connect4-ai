@@ -1,11 +1,11 @@
 pub struct TranspositionTable {
-    items: [(u64, u64); 8388593],
+    items: [(u64, u64); 7949],
 }   
 
 impl TranspositionTable {
     pub fn new() -> Self {
         Self {
-            items: [(0, 0); 8388593],    
+            items: [(0, 0); 7949],    
         }
     }
 
