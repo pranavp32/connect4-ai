@@ -32,7 +32,7 @@ impl Component for Connect4 {
             bit_board: BitBoard::new(),
             game_over: false,
             ai: AIGame::new(),
-            trans_table: TranspositionTable::new(),
+            trans_table: TranspositionTable::new(8388593),
         }
     }
 

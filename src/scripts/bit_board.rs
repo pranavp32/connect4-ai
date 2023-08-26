@@ -60,7 +60,9 @@ impl BitBoard {
     }
 
     pub fn get_unique_key(&self) -> u64 {
-        return self.player_mask + self.total_mask;
+        let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
+        //let current = self.player_mask;
+        return current + self.total_mask;
     }
 
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
