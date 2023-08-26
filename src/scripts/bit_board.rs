@@ -113,7 +113,7 @@ impl BitBoard {
     }
 
     pub fn is_draw(&self) -> bool {
-        return self.num_moves == (WIDTH * HEIGHT);
+        return self.num_moves >= WIDTH*HEIGHT - 1;
     }
 
     pub fn get_num_moves(&self) -> usize {

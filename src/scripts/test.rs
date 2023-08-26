@@ -12,6 +12,32 @@ pub enum GameState {
 
 use GameState::{Win, Loss, Tie, Default};
 
+pub struct TranspositionTable {
+    items: Vec<(u64, u64)>,
+}   
+
+impl TranspositionTable {
+    pub fn new(size: usize) -> Self {
+        Self {
+            items: vec![(0, 0); size],    
+        }
+    }
+
+    pub fn index(&self, key: u64) -> usize {
+        (key as usize) % self.items.len()
+    }
+
+    pub fn insert(&mut self, key: u64, val: u64) {
+        let idx: usize = self.index(key);
+        self.items[idx] = (key, val);
+    }
+
+    pub fn get(&self, key: u64) -> u64 {
+        let idx: usize = self.index(key);
+        self.items[idx].1
+    }
+}
+
 pub struct BitBoard {
     pub player_mask: u64, //first 49 bits used to store current player position
     pub total_mask: u64, //first 49 bits used to store all played coins
@@ -58,6 +84,12 @@ impl BitBoard {
 
     pub fn get_height_mask(&self) -> u64 {
         return self.total_mask + self.bottom_row;
+    }
+
+    pub fn get_unique_key(&self) -> u64 {
+        let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
+        //let current = self.player_mask;
+        return current + self.total_mask;
     }
 
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
@@ -168,7 +200,7 @@ impl AIGame {
             }
     }
 
-    pub fn make_move(&self, game: &mut BitBoard) -> Result<GameState, String> {
+    pub fn make_move(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
         let mut best_move = 0;
         let mut best_score = std::i64::MIN;
 
@@ -182,7 +214,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, -init, init, 13);
+                let score = -self.negamax(game, trans_table, -init, init, 43);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -195,10 +227,10 @@ impl AIGame {
         return game.play_turn(best_move);
     }
 
-    pub fn negamax(&self, game: &mut BitBoard, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
-        if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
+    pub fn negamax(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
+        if game.get_num_moves() >= WIDTH * HEIGHT {
             return 0;
-        }  
+        } 
 
         for col in 0..WIDTH {
             if game.is_move_valid(col) && game.is_winning_move(col) {
@@ -217,10 +249,10 @@ impl AIGame {
         }
 
         let mut max = (WIDTH * HEIGHT - 1 - game.get_num_moves()) as i64 / 2;
-        // let val = trans_table.get(game.get_unique_key());
-        // if val != 0 {
-        //     max = val as i64 - (WIDTH * HEIGHT / 2) as i64 + 3;
-        // }
+        let val = trans_table.get(game.get_unique_key());
+        if val != 0 {
+            max = val as i64 - (WIDTH * HEIGHT / 2) as i64 + 3;
+        }
 
         if beta > max.try_into().unwrap() {
             beta = max.try_into().unwrap();
@@ -229,8 +261,9 @@ impl AIGame {
                 return beta;
             }
         }
-
+        
         if depth == 0 {
+            // return alpha;
             return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
         }
 
@@ -239,7 +272,7 @@ impl AIGame {
 
             if game.is_move_valid(chosen_col) {
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, -beta, -alpha, depth - 1);
+                let score = -self.negamax(game, trans_table, -beta, -alpha, depth - 1);
                 let _ = game.undo_move(chosen_col);
 
                 if score >= beta {
@@ -252,7 +285,7 @@ impl AIGame {
             }
         }
 
-        // trans_table.insert(game.get_unique_key(), (alpha + (WIDTH * HEIGHT / 2) as i64 - 3) as u64);
+        trans_table.insert(game.get_unique_key(), (alpha + (WIDTH * HEIGHT / 2) as i64 - 3) as u64);
         return alpha;
     }
 }
@@ -262,7 +295,9 @@ impl AIGame {
 fn main() {
     let mut bit_board = BitBoard::new();
     let mut ai = AIGame::new();
-    
+    let mut trans_table = TranspositionTable::new(83885931);
+
+
     bit_board.play_move(3);
     bit_board.play_move(3);
     bit_board.play_move(3);
@@ -270,5 +305,5 @@ fn main() {
     bit_board.play_move(3);
     bit_board.play_move(3);
     bit_board.play_move(2);
-    ai.make_move(&mut bit_board);
+    ai.make_move(&mut bit_board, &mut trans_table);
 }

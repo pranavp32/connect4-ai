@@ -1,4 +1,5 @@
 use crate::scripts::bit_board::{BitBoard, GameState};
+// use crate::scripts::array_board::{ArrayBoard, GameState};
 use crate::scripts::trans_table::{TranspositionTable};
 
 const HEIGHT: usize = 6;
@@ -35,7 +36,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 38);
+                let score = -self.negamax(game, trans_table, -init, init, 40);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
