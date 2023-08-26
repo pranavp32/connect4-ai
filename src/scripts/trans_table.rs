@@ -1,11 +1,11 @@
 pub struct TranspositionTable {
-    items: [(u64, u64); 8388],
+    items: Vec<(u64, u64)>,
 }   
 
 impl TranspositionTable {
-    pub fn new() -> Self {
+    pub fn new(size: usize) -> Self {
         Self {
-            items: [(0, 0); 8388],    
+            items: vec![(0, 0); size],    
         }
     }
 

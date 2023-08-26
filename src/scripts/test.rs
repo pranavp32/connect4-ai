@@ -120,19 +120,16 @@ impl BitBoard {
     pub fn is_winning_move(&mut self, col: usize) -> bool {
         self.play_move(col);
         let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
-        println!("{:b}", position);
         self.undo_move(col);
         
         //horizontal direction
         let n:u64 = position & (position >> (HEIGHT + 1));
-        println!("{:b}", n);
         if n & (n >> 2 * (HEIGHT + 1)) > 0 {
             return true;
         }
 
         //vertical direction
         let n:u64 = position & (position >> 1);
-        println!("{:b}", n);
 
         if n & (n >> 2) > 0 {
             return true;
@@ -140,14 +137,12 @@ impl BitBoard {
 
         //diagonal = (/) direction
         let n:u64 = position & (position >> (HEIGHT - 1));
-        println!("{:b}", n);
         if n & (n >> 2 * (HEIGHT - 2)) > 0 {
             return true;
         }
         
         //diagonal = (\) direction
         let n:u64 = position & (position >> (HEIGHT + 2));
-        println!("{:b}", n);
         if n & (n >> 2 * (HEIGHT + 2)) > 0 {
             return true;
         }
@@ -156,20 +151,124 @@ impl BitBoard {
     }
 } 
 
+pub struct AIGame {
+    column_order: [i64; WIDTH],
+}
+
+impl AIGame {
+    pub fn new() -> Self {
+            let mut column_order = [0; WIDTH];
+
+            for i in 0..WIDTH {
+                column_order[i] = WIDTH as i64 / 2 + (1 - 2 * (i as i64 % 2)) * (i as i64 + 1) / 2;
+            }
+
+            AIGame {
+                column_order
+            }
+    }
+
+    pub fn make_move(&self, game: &mut BitBoard) -> Result<GameState, String> {
+        let mut best_move = 0;
+        let mut best_score = std::i64::MIN;
+
+        for col in 0..WIDTH {
+            let chosen_col = self.column_order[col].try_into().unwrap(); 
+
+            if game.is_move_valid(chosen_col) {
+                if game.is_winning_move(chosen_col) {
+                    return game.play_turn(chosen_col);
+                }
+
+                let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+                game.play_move(chosen_col);
+                let score = -self.negamax(game, -init, init, 13);
+                let _ = game.undo_move(chosen_col);
+
+                if score > best_score {
+                    best_move = chosen_col;
+                    best_score = score;
+                }
+            }
+        }
+
+        return game.play_turn(best_move);
+    }
+
+    pub fn negamax(&self, game: &mut BitBoard, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
+        if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
+            return 0;
+        }  
+
+        for col in 0..WIDTH {
+            if game.is_move_valid(col) && game.is_winning_move(col) {
+                return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+            }
+        }
+
+        let min = -(((WIDTH * HEIGHT - 2 - game.get_num_moves()) / 2) as i64);
+
+        if alpha < min {
+            alpha = min;                     
+            
+            if alpha >= beta {
+                return alpha; 
+            }
+        }
+
+        let mut max = (WIDTH * HEIGHT - 1 - game.get_num_moves()) as i64 / 2;
+        // let val = trans_table.get(game.get_unique_key());
+        // if val != 0 {
+        //     max = val as i64 - (WIDTH * HEIGHT / 2) as i64 + 3;
+        // }
+
+        if beta > max.try_into().unwrap() {
+            beta = max.try_into().unwrap();
+            
+            if alpha >= beta {
+                return beta;
+            }
+        }
+
+        if depth == 0 {
+            return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+        }
+
+        for col in 0..WIDTH {
+            let chosen_col = self.column_order[col].try_into().unwrap(); 
+
+            if game.is_move_valid(chosen_col) {
+                game.play_move(chosen_col);
+                let score = -self.negamax(game, -beta, -alpha, depth - 1);
+                let _ = game.undo_move(chosen_col);
+
+                if score >= beta {
+                    return score;
+                }   
+
+                if score > alpha {
+                    alpha = score;
+                }
+            }
+        }
+
+        // trans_table.insert(game.get_unique_key(), (alpha + (WIDTH * HEIGHT / 2) as i64 - 3) as u64);
+        return alpha;
+    }
+}
+
+
 
 fn main() {
     let mut bit_board = BitBoard::new();
+    let mut ai = AIGame::new();
     
     bit_board.play_move(3);
-    bit_board.play_move(4);
-    bit_board.play_move(4);
-    bit_board.play_move(5);
-    bit_board.play_move(6);
-    bit_board.play_move(5);
-    bit_board.play_move(5);
-    bit_board.play_move(5);
-    bit_board.play_move(6);
-    bit_board.play_move(1);
-    bit_board.play_move(6);
-    bit_board.play_turn(6);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
+    bit_board.play_move(2);
+    ai.make_move(&mut bit_board);
 }

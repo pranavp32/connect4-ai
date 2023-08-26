@@ -35,7 +35,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 13);
+                let score = -self.negamax(game, trans_table, -init, init, 38);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -51,9 +51,7 @@ impl AIGame {
     pub fn negamax(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
         if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
-        } else if depth == 0 {
-            return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
-        }
+        } 
 
         for col in 0..WIDTH {
             if game.is_move_valid(col) && game.is_winning_move(col) {
@@ -83,6 +81,11 @@ impl AIGame {
             if alpha >= beta {
                 return beta;
             }
+        }
+        
+        if depth == 0 {
+            // return alpha;
+            return ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
         }
 
         for col in 0..WIDTH {
