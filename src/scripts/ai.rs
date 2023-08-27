@@ -7,6 +7,7 @@ const WIDTH: usize = 7;
 
 pub struct AIGame {
     column_order: [i64; WIDTH],
+    pub debug: String,
 }
 
 impl AIGame {
@@ -18,13 +19,15 @@ impl AIGame {
             }
 
             AIGame {
-                column_order
+                column_order,
+                debug: String::new(),
             }
     }
 
-    pub fn make_move(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
+    pub fn make_move(&mut self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
         let mut best_move = 0;
         let mut best_score = std::i64::MIN;
+        self.debug = String::new();
 
         for col in 0..WIDTH {
             let chosen_col = self.column_order[col].try_into().unwrap(); 
@@ -36,7 +39,8 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 15);
+                let score = -self.negamax(game, trans_table, -init, init, 41);
+                self.debug.push_str(&format!("col:{}|score:{} ", chosen_col.to_string(), score.to_string()));
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -46,7 +50,6 @@ impl AIGame {
             }
         }
         
-        println!("{}", best_move);
         return game.play_turn(best_move);
     }
 
