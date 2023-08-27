@@ -87,13 +87,13 @@ impl BitBoard {
     }
 
     pub fn get_unique_key(&self) -> u64 {
-        let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
-        //let current = self.player_mask;
-        return current + self.total_mask;
+        // let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
+        // let current = self.player_mask + (self.player_mask ^ self.total_mask);
+        // return current;
+        return self.player_mask + self.total_mask;
     }
 
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
-
         if self.total_mask & self.bottom_col_mask(col) == 0 {
             return Err("Column in empty!".to_string())
         }
@@ -111,7 +111,6 @@ impl BitBoard {
     }
 
     pub fn play_move(&mut self, col: usize) { 
-
         let yellow_mask:u64 = self.player_mask ^ self.total_mask;
         self.total_mask |= self.total_mask + self.bottom_col_mask(col);
 
@@ -142,7 +141,7 @@ impl BitBoard {
     }
 
     pub fn is_draw(&self) -> bool {
-        return self.num_moves == (WIDTH * HEIGHT);
+        return self.num_moves >= WIDTH*HEIGHT - 1;
     }
 
     pub fn get_num_moves(&self) -> usize {
@@ -153,7 +152,7 @@ impl BitBoard {
         self.play_move(col);
         let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
         self.undo_move(col);
-        
+
         //horizontal direction
         let n:u64 = position & (position >> (HEIGHT + 1));
         if n & (n >> 2 * (HEIGHT + 1)) > 0 {
@@ -162,14 +161,13 @@ impl BitBoard {
 
         //vertical direction
         let n:u64 = position & (position >> 1);
-
         if n & (n >> 2) > 0 {
             return true;
         }
 
         //diagonal = (/) direction
-        let n:u64 = position & (position >> (HEIGHT - 1));
-        if n & (n >> 2 * (HEIGHT - 2)) > 0 {
+        let n:u64 = position & (position >> HEIGHT);
+        if n & (n >> 2 * HEIGHT) > 0 {
             return true;
         }
         
@@ -178,7 +176,7 @@ impl BitBoard {
         if n & (n >> 2 * (HEIGHT + 2)) > 0 {
             return true;
         }
-
+        
         return false;
     }
 } 
@@ -214,7 +212,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 43);
+                let score = -self.negamax(game, trans_table, -init, init, 15);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -228,7 +226,7 @@ impl AIGame {
     }
 
     pub fn negamax(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
-        if game.get_num_moves() >= WIDTH * HEIGHT {
+        if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
         } 
 
@@ -297,13 +295,8 @@ fn main() {
     let mut ai = AIGame::new();
     let mut trans_table = TranspositionTable::new(83885931);
 
-
     bit_board.play_move(3);
+    ai.make_move(&mut bit_board, &mut trans_table);
     bit_board.play_move(3);
-    bit_board.play_move(3);
-    bit_board.play_move(3);
-    bit_board.play_move(3);
-    bit_board.play_move(3);
-    bit_board.play_move(2);
     ai.make_move(&mut bit_board, &mut trans_table);
 }

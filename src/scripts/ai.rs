@@ -36,7 +36,7 @@ impl AIGame {
 
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 40);
+                let score = -self.negamax(game, trans_table, -init, init, 15);
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
@@ -45,7 +45,8 @@ impl AIGame {
                 }
             }
         }
-
+        
+        println!("{}", best_move);
         return game.play_turn(best_move);
     }
 
