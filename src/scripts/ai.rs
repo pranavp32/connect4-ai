@@ -7,6 +7,7 @@ const WIDTH: usize = 7;
 
 pub struct AIGame {
     column_order: [i64; WIDTH],
+    // pub debug: String,
 }
 
 impl AIGame {
@@ -18,35 +19,61 @@ impl AIGame {
             }
 
             AIGame {
-                column_order
+                column_order,
+                // debug: String::new(),
             }
     }
 
-    pub fn make_move(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
+    pub fn make_move(&mut self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
+        // if game.get_num_moves() == 7 {
+        //     return game.play_turn(1);
+        // }
+        // self.debug = String::new();
+
+        let mut min = -(((WIDTH * HEIGHT - 2 - game.get_num_moves()) / 2) as i64);
+        let mut max = (WIDTH * HEIGHT - 1 - game.get_num_moves()) as i64 / 2;
+        let mut med = min + (max - min)/2;
         let mut best_move = 0;
         let mut best_score = std::i64::MIN;
 
-        for col in 0..WIDTH {
-            let chosen_col = self.column_order[col].try_into().unwrap(); 
-
-            if game.is_move_valid(chosen_col) {
-                if game.is_winning_move(chosen_col) {
-                    return game.play_turn(chosen_col);
-                }
-
-                let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
-                game.play_move(chosen_col);
-                let score = -self.negamax(game, trans_table, -init, init, 15);
-                let _ = game.undo_move(chosen_col);
-
-                if score > best_score {
-                    best_move = chosen_col;
-                    best_score = score;
+        while min < max {
+            if med <= 0 && min/2 < med {
+                med = min/2;
+            }else if med >= 0 && max/2 > med {
+                med = max/2;
+            }
+            for col in 0..WIDTH {
+                let chosen_col = self.column_order[col].try_into().unwrap(); 
+    
+                if game.is_move_valid(chosen_col) {
+                    if game.is_winning_move(chosen_col) {
+                        return game.play_turn(chosen_col);
+                    }
+    
+                    let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+                    game.play_move(chosen_col);
+                    let score = -self.negamax(game, trans_table, med, med + 1, 41);
+                    if score <= med {
+                        max = score;
+                    }else{
+                        min = score;
+                    }
+                    // self.debug.push_str(&format!("col:{}|score:{} ", chosen_col.to_string(), score.to_string()));
+                    let _ = game.undo_move(chosen_col);
+    
+                    if min > best_score {
+                        best_move = chosen_col;
+                        best_score = min;
+                    }
                 }
             }
+
         }
+
         
-        println!("{}", best_move);
+
+
+
         return game.play_turn(best_move);
     }
 

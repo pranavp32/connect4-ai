@@ -87,10 +87,10 @@ impl BitBoard {
     }
 
     pub fn get_unique_key(&self) -> u64 {
-        // let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
-        // let current = self.player_mask + (self.player_mask ^ self.total_mask);
-        // return current;
-        return self.player_mask + self.total_mask;
+        let mut combine = self.player_mask ^ self.total_mask;
+        combine = ((combine >> 32) ^ combine).wrapping_mul(0x45d9f3b);
+        combine = ((combine >> 32) ^ combine).wrapping_mul(0x45d9f3b);
+        combine & 0xFFFFFFFFFFFFFFFF
     }
 
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
@@ -294,9 +294,30 @@ fn main() {
     let mut bit_board = BitBoard::new();
     let mut ai = AIGame::new();
     let mut trans_table = TranspositionTable::new(83885931);
+    let mut best_move = 0;
+    bit_board.play_move(3);
+    ai.make_move(&mut bit_board, &mut trans_table);
+    bit_board.play_move(3);
 
-    bit_board.play_move(3);
-    ai.make_move(&mut bit_board, &mut trans_table);
-    bit_board.play_move(3);
-    ai.make_move(&mut bit_board, &mut trans_table);
+    for col in 0..WIDTH {
+        let chosen_col = ai.column_order[col].try_into().unwrap(); 
+
+        if bit_board.is_move_valid(chosen_col) {
+            if bit_board.is_winning_move(chosen_col) {
+                bit_board.play_turn(chosen_col);
+            }
+
+            let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
+            bit_board.play_move(chosen_col);
+            let score = -ai.negamax(game, trans_table, -init, init, 15);
+            let _ = bit_board.undo_move(chosen_col);
+
+            if score > best_score {
+                ai.best_move = chosen_col;
+                best_score = score;
+            }
+        }
+    }
+    println!("{}", best_move);
+
 }
