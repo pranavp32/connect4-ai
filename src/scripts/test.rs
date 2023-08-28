@@ -87,10 +87,9 @@ impl BitBoard {
     }
 
     pub fn get_unique_key(&self) -> u64 {
-        // let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
-        // let current = self.player_mask + (self.player_mask ^ self.total_mask);
-        // return current;
-        return self.player_mask + self.total_mask;
+        let current = if self.red_turn {self.player_mask} else {self.player_mask ^ self.total_mask};
+        //let current = self.player_mask;
+        return current + self.total_mask;
     }
 
     pub fn undo_move(&mut self, col: usize) -> Result<GameState, String> {
@@ -181,6 +180,7 @@ impl BitBoard {
     }
 } 
 
+
 pub struct AIGame {
     column_order: [i64; WIDTH],
 }
@@ -221,7 +221,8 @@ impl AIGame {
                 }
             }
         }
-
+        
+        println!("{}", best_move);
         return game.play_turn(best_move);
     }
 
@@ -294,9 +295,14 @@ fn main() {
     let mut bit_board = BitBoard::new();
     let mut ai = AIGame::new();
     let mut trans_table = TranspositionTable::new(83885931);
-
+    
     bit_board.play_move(3);
     ai.make_move(&mut bit_board, &mut trans_table);
     bit_board.play_move(3);
     ai.make_move(&mut bit_board, &mut trans_table);
+    bit_board.play_move(3);
+    ai.make_move(&mut bit_board, &mut trans_table);
+    bit_board.play_move(2);
+    ai.make_move(&mut bit_board, &mut trans_table);
+    
 }

@@ -101,14 +101,6 @@ impl Component for Connect4 {
 
 impl Connect4 {
     fn render_cell(&self, row: usize, column: usize) -> Html {
-        // let index = ((HEIGHT - 1 - row) * WIDTH) + column;
-        // let cell = self.array_board.board[index];
-
-        // let coin_class = match cell {
-        //     Cell::Red => "red",
-        //     Cell::Yellow => "yellow",
-        //     Cell::Empty => "empty",
-        // };
         let red_board = self.bit_board.player_mask;
         let yellow_board = self.bit_board.total_mask ^ red_board;
         let align = self.bit_board.bottom_col_mask(column) << (HEIGHT - 1 - row);

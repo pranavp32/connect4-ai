@@ -14,6 +14,7 @@ use GameState::{Win, Loss, Tie, Default};
 pub struct BitBoard {
     pub player_mask: u64, //first 49 bits used to store current player position
     pub total_mask: u64, //first 49 bits used to store all played coins
+    pub complete_board: u64,
     pub bottom_row: u64,
     num_moves: usize, //total number of moves played in the current game
     pub red_turn: bool, //used to signify whose turn it is
@@ -32,6 +33,7 @@ impl BitBoard {
         Self {
             player_mask: 0, 
             total_mask: 0,
+            complete_board: (temp << HEIGHT) - 1,
             bottom_row: temp,
             num_moves: 0,
             red_turn: true,
@@ -60,9 +62,8 @@ impl BitBoard {
     }
 
     pub fn get_unique_key(&self) -> u64 {
-        let current = if self.red_turn{self.player_mask} else {self.player_mask ^ self.total_mask};
-        // let current = self.player_mask + (self.player_mask ^ self.total_mask);
-        // return current;
+        let current = if self.red_turn {self.player_mask} else {self.player_mask ^ self.total_mask};
+        //let current = self.player_mask;
         return current + self.total_mask;
     }
 
@@ -151,5 +152,56 @@ impl BitBoard {
         }
         
         return false;
+    }
+
+    pub fn get_possible_moves(&self) -> u64 {
+        return (self.total_mask + self.bottom_row) & self.complete_board;
+    }
+
+    pub fn get_red_winning_pos(&mut self) -> u64 {
+        //vertical direction
+        let mut n: u64 = (self.player_mask << 1) & (self.player_mask << 2) & (self.player_mask << 3);
+
+        //horizontal direction
+        let mut m: u64 = (self.player_mask << (HEIGHT + 1)) & (self.player_mask << 2*(HEIGHT + 1));
+        n |= m & (self.player_mask << 3*(HEIGHT + 1));
+        n |= m & (self.player_mask >> (HEIGHT+1));
+        m >>= 3*(HEIGHT+1);
+        n |= m & (self.player_mask << (HEIGHT+1));
+        n |= m & (self.player_mask >> 3*(HEIGHT+1));
+
+        //diagonal /
+        m = (self.player_mask << HEIGHT) & (self.player_mask << 2*HEIGHT);
+        n |= m & (self.player_mask << 3*HEIGHT);
+        n |= m & (self.player_mask >> HEIGHT);
+        m >>= 3*HEIGHT;
+        n |= m & (self.player_mask << HEIGHT);
+        n |= m & (self.player_mask >> 3*HEIGHT);
+
+        //diagonal \
+        m = (self.player_mask << (HEIGHT+2)) & (self.player_mask << 2*(HEIGHT+2));
+        n |= m & (self.player_mask << 3*(HEIGHT+2));
+        n |= m & (self.player_mask >> (HEIGHT+2));
+        m >>= 3*(HEIGHT+2);
+        n |= m & (self.player_mask << (HEIGHT+2));
+        n |= m & (self.player_mask >> 3*(HEIGHT+2));
+
+        return n & (self.complete_board ^ self.total_mask);
+    }
+
+    pub fn get_nonlosing_moves(&mut self) -> u64 {
+        let mut poss: u64 = self.get_possible_moves();
+        let win_pos: u64 = self.get_red_winning_pos();
+        let moves: u64 = poss & win_pos;
+
+        if moves > 0 {
+            if moves & (moves - 1) > 0 {
+                return 0;
+            }
+
+            poss = moves;
+        } 
+        
+        return poss & !(win_pos >> 1); 
     }
 } 

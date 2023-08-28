@@ -25,12 +25,12 @@ impl AIGame {
     }
 
     pub fn make_move(&mut self, game: &mut BitBoard, trans_table: &mut TranspositionTable) -> Result<GameState, String> {
-        let mut best_move = 0;
-        let mut best_score = std::i64::MIN;
+        let mut best_move: usize = 0;
+        let mut best_score: i64 = std::i64::MIN;
         self.debug = String::new();
 
         for col in 0..WIDTH {
-            let chosen_col = self.column_order[col].try_into().unwrap(); 
+            let chosen_col: usize = self.column_order[col].try_into().unwrap(); 
 
             if game.is_move_valid(chosen_col) {
                 if game.is_winning_move(chosen_col) {
@@ -40,11 +40,14 @@ impl AIGame {
                 let init:i64 = ((WIDTH * HEIGHT + 1 - game.get_num_moves()) / 2) as i64;
                 game.play_move(chosen_col);
                 let score = -self.negamax(game, trans_table, -init, init, 41);
-                self.debug.push_str(&format!("col:{}|score:{} ", chosen_col.to_string(), score.to_string()));
+                // self.debug.push_str(&format!("col:{} |", chosen_col.to_string()));
+
+                // self.debug.push_str(&format!("(col:{}, score:{}) ", chosen_col.to_string(), score.to_string()));
                 let _ = game.undo_move(chosen_col);
 
                 if score > best_score {
                     best_move = chosen_col;
+                    // self.debug.push_str(&format!("best:{} |", best_move.to_string()));
                     best_score = score;
                 }
             }
@@ -54,6 +57,11 @@ impl AIGame {
     }
 
     pub fn negamax(&self, game: &mut BitBoard, trans_table: &mut TranspositionTable, mut alpha: i64, mut beta: i64, depth: i64) -> i64 {
+        // let poss: u64 = game.get_nonlosing_moves();
+        // if poss == 0 {
+        //     return -(((WIDTH * HEIGHT - game.get_num_moves()) / 2) as i64);
+        // }
+       
         if game.get_num_moves() >= WIDTH * HEIGHT - 2 {
             return 0;
         } 
