@@ -123,67 +123,31 @@ impl BitBoard {
     }
 
     pub fn is_winning_move(&mut self, col: usize) -> bool {
-       return self.get_winning_pos() & self.get_possible_moves() & self.full_col_mask(col) > 0;
-    }
-
-    pub fn get_possible_moves(&self) -> u64 {
-        return (self.total_mask + self.bottom_row) & self.complete_board;
-    }
-
-    pub fn get_winning_pos(&mut self) -> u64 {
-        let position:u64 = if self.red_turn {self.player_mask} else {self.total_mask ^ self.player_mask};
-        return self.calculate_winning_pos(position);
-    }
-
-    pub fn get_opponent_winning_pos(&mut self) -> u64 {
+        self.play_move(col);
         let position:u64 = if self.red_turn {self.total_mask ^ self.player_mask}  else {self.player_mask};
-        return self.calculate_winning_pos(position);
-    }
-
-    pub fn calculate_winning_pos(&mut self, position: u64) -> u64 {
-        //vertical direction
-        let mut n: u64 = (position<< 1) & (position << 2) & (position << 3);
-
+        self.undo_move(col);
         //horizontal direction
-        let mut m: u64 = (position << (HEIGHT + 1)) & (position << 2*(HEIGHT + 1));
-        n |= m & (position << 3*(HEIGHT + 1));
-        n |= m & (position >> (HEIGHT+1));
-        m >>= 3*(HEIGHT+1);
-        n |= m & (position << (HEIGHT+1));
-        n |= m & (position >> 3*(HEIGHT+1));
-
-        //diagonal /
-        m = (position<< HEIGHT) & (position << 2*HEIGHT);
-        n |= m & (position << 3*HEIGHT);
-        n |= m & (position >> HEIGHT);
-        m >>= 3*HEIGHT;
-        n |= m & (position << HEIGHT);
-        n |= m & (position >> 3*HEIGHT);
-
-        //diagonal \
-        m = (position << (HEIGHT+2)) & (position << 2*(HEIGHT+2));
-        n |= m & (position << 3*(HEIGHT+2));
-        n |= m & (position >> (HEIGHT+2));
-        m >>= 3*(HEIGHT+2);
-        n |= m & (position << (HEIGHT+2));
-        n |= m & (position >> 3*(HEIGHT+2));
-
-        return n & (self.complete_board ^ self.total_mask);
-    }
-
-    pub fn get_nonlosing_moves(&mut self) -> u64 {
-        let mut poss: u64 = self.get_possible_moves();
-        let opp_pos: u64 = self.get_opponent_winning_pos();
-        let moves: u64 = poss & opp_pos;
-
-        if moves > 0 {
-            if moves & (moves - 1) > 0 {
-                return 0;
-            }
-
-            poss = moves;
-        } 
+        let n:u64 = position & (position >> (HEIGHT + 1));
+        if n & (n >> 2 * (HEIGHT + 1)) > 0 {
+            return true;
+        }
+        //vertical direction
+        let n:u64 = position & (position >> 1);
+        if n & (n >> 2) > 0 {
+            return true;
+        }
+        //diagonal = (/) direction
+        let n:u64 = position & (position >> HEIGHT);
+        if n & (n >> 2 * HEIGHT) > 0 {
+            return true;
+        }
         
-        return poss & !(opp_pos >> 1); 
+        //diagonal = (\) direction
+        let n:u64 = position & (position >> (HEIGHT + 2));
+        if n & (n >> 2 * (HEIGHT + 2)) > 0 {
+            return true;
+        }
+        
+        return false;
     }
 } 

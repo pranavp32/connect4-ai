@@ -297,12 +297,12 @@ fn main() {
     let mut trans_table = TranspositionTable::new(83885931);
     
     bit_board.play_move(3);
-    ai.make_move(&mut bit_board, &mut trans_table);
     bit_board.play_move(3);
-    ai.make_move(&mut bit_board, &mut trans_table);
     bit_board.play_move(3);
-    ai.make_move(&mut bit_board, &mut trans_table);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
+    bit_board.play_move(3);
     bit_board.play_move(2);
-    ai.make_move(&mut bit_board, &mut trans_table);
-    
+
+    println!("{:b}", bit_board.total_mask);
 }
