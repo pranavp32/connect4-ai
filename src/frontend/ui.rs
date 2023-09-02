@@ -152,10 +152,10 @@ impl Connect4 {
 
     fn render_game_state_message(&self) -> Html {
         let state_message = match self.bit_board.state {
-            GameState::Win => "You won :D",
-            GameState::Loss => "You lost :(",
-            GameState::Tie => "Tie :|",
-            GameState::Default => self.ai.debug.as_str(),
+            GameState::Win => "You won! :D",
+            GameState::Loss => "You lost! :(",
+            GameState::Tie => "Tie! :|",
+            GameState::Default => "Think carefully!",
         };
 
         html! {

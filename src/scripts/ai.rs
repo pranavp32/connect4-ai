@@ -32,7 +32,7 @@ impl AIGame {
         let mut depth: i64 = 20;
         self.debug = String::new();
         self.bound = game.get_num_moves();
-        self.debug.push_str(&game.total_mask.to_string());
+        // self.debug.push_str(&game.total_mask.to_string());
         // self.debug.push_str(&format!("{:b}", game.total_mask));
 
         if game.total_mask == 400556032 {        
